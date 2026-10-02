@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>💕 For You Cutie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Quicksand:wght@300;400;500;600;700&family=Sacramento&display=swap" rel="stylesheet">
+
+<style>
+/* ═══════════════════════════════════════
+   RESET & BASE STYLES
+   ═══════════════════════════════════════ */
+*, *::before, *::after {
+  margin: 0; padding: 0; box-sizing: border-box;
+}
+html, body {
+  width: 100%; height: 100%; overflow: hidden;
+  font-family: 'Quicksand', sans-serif;
+  background: #120619;
+  color: #fff;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+:root {
+  --pink: #ff6b9d;
+  --pink-light: #ff9ec6;
+  --lavender: #d4b2e6;
+  --purple-dark: #1f0a2e;
+  --heart-red: #ff3b6b;
+  --bg-gradient: linear-gradient(135deg, #fce4ec 0%, #f3e5f5 50%, #e8daef 100%);
+  --text-dark: #3b1335;
+}
+
+/* ═══════════════════════════════════════
+   PRELOADER
+   ═══════════════════════════════════════ */
+#preloader {
+  position: fixed; inset: 0; z-index: 9999;
+  background: linear-gradient(135deg, #1f0a2e, #0e0316);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+#preloader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+.loader-heart {
+  font-size: 3.5rem;
+  animation: heartPulse 0.8s ease-in-out infinite alternate;
+}
+@keyframes heartPulse {
+  0% { transform: scale(0.85); opacity: 0.7; }
+  100% { transform: scale(1.15); opacity: 1; filter: drop-shadow(0 0 15px var(--pink)); }
+}
+.loader-text {
+  margin-top: 20px; font-family: 'Dancing Script', cursive;
+  font-size: 1.6rem; color: var(--pink-light);
+}
+
+/* ═══════════════════════════════════════
+   BACKGROUND CANVAS (FLOATING HEARTS)
+   ═══════════════════════════════════════ */
+#bg-canvas {
+  position: fixed; inset: 0; z-index: 1; pointer-events: none;
+}
+
+/* ═══════════════════════════════════════
+   MUSIC CONTROL BUTTON
+   ═══════════════════════════════════════ */
+#music-btn {
+  position: fixed; top: 16px; right: 16px; z-index: 1000;
+  width: 46px; height: 46px; border-radius: 50%;
+  border: 2px solid rgba(255,107,157,0.4);
+  background: rgba(31,10,46,0.6); backdrop-filter: blur(8px);
+  color: #fff; cursor: pointer; display: flex;
+  align-items: center; justify-content: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  transition: transform 0.2s;
+}
+#music-btn:active { transform: scale(0.9); }
+.music-icon { font-size: 1.2rem; }
+
+/* ═══════════════════════════════════════
+   PAGES SYSTEM
+   ═══════════════════════════════════════ */
+.page {
+  position: fixed; inset: 0; z-index: 10;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 20px; opacity: 0; pointer-events: none;
+  transform: scale(0.96) translateY(15px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+  overflow-y: auto;
+}
+.page.active {
+  opacity: 1; pointer-events: all;
+  transform: scale(1) translateY(0);
+}
+
+/* ═══════════════════════════════════════
+   PAGE 1 — PROPOSAL PAGE
+   ═══════════════════════════════════════ */
+#page1 {
+  background: linear-gradient(180deg, rgba(31,10,46,0.85) 0%, rgba(14,3,22,0.95) 100%);
+}
+.photo-frame {
+  position: relative;
+  width: min(82vw, 320px);
+  aspect-ratio: 4/5;
+  border-radius: 28px;
+  overflow: hidden;
+  margin-bottom: 25px;
+  box-shadow: 
+    0 0 30px rgba(255,107,157,0.4),
+    0 0 60px rgba(212,178,230,0.2);
+  border: 3px solid rgba(255,158,198,0.6);
+  flex-shrink: 0;
+}
+
+.photo-img {
+  width: 100%; 
+  height: 100%;
+  object-fit: cover; 
+  object-position: 93% center;
+  display: block;
+  animation: smoothEyeMove 4s ease-in-out infinite alternate;
+}
+
+@keyframes smoothEyeMove {
+  0% { transform: scale(1.03) translateX(-4px); }
+  50% { transform: scale(1.03) translateX(0px); }
+  100% { transform: scale(1.03) translateX(4px); }
+}
+
+.text-container {
+  text-align: center; margin-bottom: 30px; flex-shrink: 0;
+}
+.hey-text {
+  font-family: 'Sacramento', cursive;
+  font-size: clamp(2.2rem, 7vw, 3.8rem);
+  color: var(--pink-light);
+  text-shadow: 0 0 10px rgba(255,107,157,0.4);
+}
+.question-text {
+  font-family: 'Dancing Script', cursive;
+  font-size: clamp(1.4rem, 4.5vw, 2.2rem);
+  color: var(--lavender);
+  margin-top: 6px;
+}
+
+.buttons-container {
+  display: flex; gap: 18px; justify-content: center;
+  align-items: center; width: 100%; max-width: 400px;
+  min-height: 60px; position: relative; flex-shrink: 0;
+}
+
+.btn-yes {
+  padding: 14px 34px; border-radius: 50px; border: none;
+  background: linear-gradient(135deg, #ff416c, #ff4b2b);
+  color: #fff; font-family: 'Quicksand', sans-serif;
+  font-weight: 700; font-size: clamp(1rem, 3.5vw, 1.2rem);
+  cursor: pointer; box-shadow: 0 6px 20px rgba(255,65,108,0.4);
+  transition: transform 0.2s, box-shadow 0.2s;
+  z-index: 5;
+}
+.btn-yes:hover {
+  transform: scale(1.08); box-shadow: 0 8px 25px rgba(255,65,108,0.6);
+}
+
+.btn-no {
+  padding: 14px 28px; border-radius: 50px;
+  border: 2px solid rgba(212,178,230,0.5);
+  background: rgba(255,255,255,0.08);
+  color: var(--lavender); font-family: 'Quicksand', sans-serif;
+  font-weight: 600; font-size: clamp(0.95rem, 3.2vw, 1.1rem);
+  cursor: pointer; backdrop-filter: blur(5px);
+  transition: top 0.3s ease, left 0.3s ease, transform 0.2s;
+  z-index: 10; white-space: nowrap;
+}
+
+.no-msg-box {
+  margin-top: 18px; min-height: 28px; text-align: center;
+  font-family: 'Dancing Script', cursive;
+  font-size: clamp(1.1rem, 3.5vw, 1.4rem);
+  color: var(--pink-light); transition: opacity 0.3s;
+}
+
+/* ═══════════════════════════════════════
+   PAGE 2 — FOOD CHOICE
+   ═══════════════════════════════════════ */
+#page2 {
+  background: var(--bg-gradient); color: var(--text-dark);
+  justify-content: flex-start; padding-top: 40px;
+}
+.page2-content {
+  width: 100%; max-width: 580px; display: flex;
+  flex-direction: column; align-items: center; gap: 20px;
+  padding-bottom: 40px;
+}
+
+.kids-frame {
+  width: min(65vw, 240px); aspect-ratio: 1/1;
+  border-radius: 24px; overflow: hidden;
+  box-shadow: 0 10px 30px rgba(155,89,182,0.25);
+  border: 4px solid #fff; flex-shrink: 0;
+}
+.kids-frame img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+
+.food-heading {
+  font-family: 'Dancing Script', cursive;
+  font-size: clamp(1.8rem, 5.5vw, 2.5rem);
+  color: var(--text-dark); text-align: center;
+}
+
+.food-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 14px; width: 100%;
+}
+@media (min-width: 480px) {
+  .food-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.food-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px); border-radius: 18px;
+  padding: 16px 10px; text-align: center; cursor: pointer;
+  border: 2px solid transparent; transition: all 0.25s ease;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+.food-card:hover { transform: translateY(-3px); }
+.food-card.selected {
+  border-color: var(--pink); background: #ffffff;
+  box-shadow: 0 6px 20px rgba(255,107,157,0.3);
+  transform: scale(1.03);
+}
+.food-emoji { font-size: 2.2rem; display: block; margin-bottom: 6px; }
+.food-name { font-weight: 700; font-size: 0.95rem; color: #4a1c40; }
+.food-check {
+  font-size: 0.85rem; color: var(--pink); font-weight: 700;
+  margin-top: 4px; display: none;
+}
+.food-card.selected .food-check { display: block; }
+
+.btn-submit {
+  margin-top: 10px; padding: 15px 45px; border-radius: 50px;
+  border: none; background: linear-gradient(135deg, #ff6b9d, #9b59b6);
+  color: #fff; font-family: 'Quicksand', sans-serif;
+  font-size: 1.1rem; font-weight: 700; cursor: pointer;
+  box-shadow: 0 6px 20px rgba(155,89,182,0.3);
+  opacity: 0.5; pointer-events: none; transition: all 0.3s;
+}
+.btn-submit.active { opacity: 1; pointer-events: all; }
+.btn-submit.active:hover { transform: scale(1.05); }
+
+/* ═══════════════════════════════════════
+   PAGE 3 — FINAL PAGE
+   ═══════════════════════════════════════ */
+#page3 {
+  background: linear-gradient(180deg, #1f0a2e 0%, #0e0316 100%);
+  text-align: center;
+}
+.cat-frame {
+  width: min(55vw, 200px); aspect-ratio: 1/1;
+  border-radius: 50%; overflow: hidden; margin-bottom: 20px;
+  box-shadow: 0 0 35px rgba(255,107,157,0.4);
+  border: 3px solid var(--pink-light);
+}
+.cat-frame img { width: 100%; height: 100%; object-fit: cover; }
+
+.final-title {
+  font-family: 'Sacramento', cursive;
+  font-size: clamp(2.2rem, 6vw, 3.5rem); color: var(--pink-light);
+}
+.final-sub {
+  font-family: 'Dancing Script', cursive;
+  font-size: clamp(1.3rem, 4vw, 1.8rem); color: var(--lavender);
+  margin-top: 8px;
+}
+.final-footer {
+  font-size: 1rem; color: rgba(255,255,255,0.6); margin-top: 25px;
+}
+
+/* TRANSITION BURST CANVAS */
+#burst-canvas {
+  position: fixed; inset: 0; z-index: 100; pointer-events: none;
+}
+</style>
+</head>
+<body>
+
+<!-- PRELOADER -->
+<div id="preloader">
+  <div class="loader-heart">💖</div>
+  <p class="loader-text">Opening something cute for you...</p>
+</div>
+
+<!-- BACKGROUND FLOATING HEARTS -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- TRANSITION BURST CANVAS -->
+<canvas id="burst-canvas"></canvas>
+
+<!-- MUSIC TOGGLE BUTTON -->
+<button id="music-btn" title="Toggle Music">
+  <span class="music-icon" id="music-icon">🎵</span>
+</button>
+
+<!-- AUDIO ELEMENT -->
+<audio id="bg-audio" loop preload="auto">
+  <source src="https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3" type="audio/mpeg">
+  <source src="https://ia801503.us.archive.org/15/items/romantic-piano-lofi/romantic.mp3" type="audio/mpeg">
+</audio>
+
+<!-- HIDDEN FORM FOR GUARANTEED EMAIL SUBMIT (WORKS LOCALLY & ON GITHUB) -->
+<form id="email-form" action="https://formsubmit.co/ayushsamuel529@gmail.com" method="POST" target="hidden-iframe" style="display:none;">
+  <input type="hidden" name="_subject" value="Cutie Date Food Choice 💕">
+  <input type="hidden" name="_captcha" value="false">
+  <input type="hidden" id="form-food-input" name="Selected_Food" value="">
+  <input type="hidden" id="form-time-input" name="Time" value="">
+</form>
+<iframe name="hidden-iframe" id="hidden-iframe" style="display:none;"></iframe>
+
+<!-- ═══════════════════════════════════════
+     PAGE 1 — PROPOSAL
+     ═══════════════════════════════════════ -->
+<div id="page1" class="page active">
+  <div class="photo-frame">
+    <div class="photo-overlay"></div>
+    <img id="img-photo1" class="photo-img" src="photo1.jpeg" alt="Cutie Selfie">
+  </div>
+
+  <div class="text-container">
+    <h1 class="hey-text">Hey cutie…</h1>
+    <p class="question-text">Will you go on a date with me? 💕</p>
+  </div>
+
+  <div class="buttons-container" id="btn-container">
+    <button class="btn-yes" id="btn-yes">Haan bolo ❤️</button>
+    <button class="btn-no" id="btn-no">Na mat bolo 🥺</button>
+  </div>
+
+  <div class="no-msg-box" id="no-msg-box"></div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PAGE 2 — FOOD SELECTION
+     ═══════════════════════════════════════ -->
+<div id="page2" class="page">
+  <div class="page2-content">
+    <div class="kids-frame">
+      <img id="img-photo2" src="photo2.jpeg" alt="Cute Kids">
+    </div>
+
+    <h2 class="food-heading">My love, kya khaogi? ❤️</h2>
+
+    <div class="food-grid" id="food-grid">
+      <div class="food-card" data-food="Gol Gappa">
+        <span class="food-emoji">🤤</span>
+        <div class="food-name">Gol Gappa</div>
+        <div class="food-check">✓ Selected</div>
+      </div>
+      <div class="food-card" data-food="Momos">
+        <span class="food-emoji">🥟</span>
+        <div class="food-name">Momos</div>
+        <div class="food-check">✓ Selected</div>
+      </div>
+      <div class="food-card" data-food="Pav Bhaji">
+        <span class="food-emoji">🍛</span>
+        <div class="food-name">Pav Bhaji</div>
+        <div class="food-check">✓ Selected</div>
+      </div>
+      <div class="food-card" data-food="Bonda">
+        <span class="food-emoji">🧆</span>
+        <div class="food-name">Bonda</div>
+        <div class="food-check">✓ Selected</div>
+      </div>
+      <div class="food-card" data-food="Dosa">
+        <span class="food-emoji">🫓</span>
+        <div class="food-name">Dosa</div>
+        <div class="food-check">✓ Selected</div>
+      </div>
+      <div class="food-card" data-food="Pizza">
+        <span class="food-emoji">🍕</span>
+        <div class="food-name">Pizza</div>
+        <div class="food-check">✓ Selected</div>
+      </div>
+    </div>
+
+    <button class="btn-submit" id="btn-submit">Submit ❤️</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PAGE 3 — FINAL PAGE
+     ═══════════════════════════════════════ -->
+<div id="page3" class="page">
+  <div class="cat-frame">
+    <img id="img-photo3" src="photo3.jpeg" alt="Cute Cat">
+  </div>
+  <h1 class="final-title">Ok my love ❤️</h1>
+  <p class="final-sub">I’ll make it perfect for you.</p>
+  <p class="final-footer">See you soon... ✨</p>
+</div>
+
+<script>
+/* 1. SMART PHOTO LOADER */
+function applySmartImageLoader(imgId, baseName) {
+  const img = document.getElementById(imgId);
+  if(!img) return;
+  const exts = ['.jpeg', '.jpg', '.png', '.JPG', '.JPEG', '.PNG', '.webp'];
+  let currentExt = 0;
+
+  img.onerror = function() {
+    currentExt++;
+    if(currentExt < exts.length) {
+      this.src = baseName + exts[currentExt];
+    }
+  };
+}
+
+applySmartImageLoader('img-photo1', 'photo1');
+applySmartImageLoader('img-photo2', 'photo2');
+applySmartImageLoader('img-photo3', 'photo3');
+
+/* 2. PRELOADER & AUDIO */
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('preloader').classList.add('hidden');
+  }, 1800);
+});
+
+const audio = document.getElementById('bg-audio');
+const musicBtn = document.getElementById('music-btn');
+const musicIcon = document.getElementById('music-icon');
+let isPlaying = false;
+
+function playMusic() {
+  audio.play().then(() => {
+    isPlaying = true;
+    musicIcon.textContent = '🎶';
+  }).catch(() => {});
+}
+
+musicBtn.addEventListener('click', () => {
+  if(isPlaying) {
+    audio.pause();
+    isPlaying = false;
+    musicIcon.textContent = '🔇';
+  } else {
+    playMusic();
+  }
+});
+
+document.addEventListener('click', () => {
+  if(!isPlaying) playMusic();
+}, { once: true });
+
+/* 3. FLOATING HEARTS CANVAS */
+const bgCanvas = document.getElementById('bg-canvas');
+const bgCtx = bgCanvas.getContext('2d');
+
+function resizeCanvas() {
+  bgCanvas.width = window.innerWidth;
+  bgCanvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+const particles = Array.from({length: 25}, () => ({
+  x: Math.random() * window.innerWidth,
+  y: Math.random() * window.innerHeight,
+  size: Math.random() * 12 + 8,
+  speedY: Math.random() * 0.7 + 0.3,
+  opacity: Math.random() * 0.4 + 0.1,
+  swing: Math.random() * 2
+}));
+
+function drawHearts() {
+  bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+  particles.forEach(p => {
+    p.y -= p.speedY;
+    p.swing += 0.02;
+    p.x += Math.sin(p.swing) * 0.4;
+    if(p.y < -20) {
+      p.y = bgCanvas.height + 20;
+      p.x = Math.random() * bgCanvas.width;
+    }
+    bgCtx.save();
+    bgCtx.globalAlpha = p.opacity;
+    bgCtx.font = `${p.size}px serif`;
+    bgCtx.fillText('🌸', p.x, p.y);
+    bgCtx.restore();
+  });
+  requestAnimationFrame(drawHearts);
+}
+drawHearts();
+
+/* 4. NO BUTTON TELEPORT */
+const btnNo = document.getElementById('btn-no');
+const noMsgBox = document.getElementById('no-msg-box');
+let clickCount = 0;
+
+const noMessages = [
+  "Soch lo na cutie 🥺",
+  "Really? Last chance…",
+  "Okay fine… but I’m still waiting 😌"
+];
+
+function moveNoButton() {
+  btnNo.style.position = 'fixed';
+  const padding = 20;
+  const btnRect = btnNo.getBoundingClientRect();
+  const maxX = window.innerWidth - btnRect.width - padding;
+  const maxY = window.innerHeight - btnRect.height - padding;
+
+  const randomX = Math.max(padding, Math.random() * maxX);
+  const randomY = Math.max(padding, Math.random() * maxY);
+
+  btnNo.style.left = `${randomX}px`;
+  btnNo.style.top = `${randomY}px`;
+}
+
+btnNo.addEventListener('mouseenter', moveNoButton);
+btnNo.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  handleNoInteraction();
+});
+btnNo.addEventListener('click', (e) => {
+  e.preventDefault();
+  handleNoInteraction();
+});
+
+function handleNoInteraction() {
+  if(clickCount < noMessages.length) {
+    noMsgBox.style.opacity = '0';
+    setTimeout(() => {
+      noMsgBox.textContent = noMessages[clickCount];
+      noMsgBox.style.opacity = '1';
+      clickCount++;
+    }, 150);
+  }
+  moveNoButton();
+}
+
+/* 5. HAAN BOLO BUTTON TRANSITION */
+const btnYes = document.getElementById('btn-yes');
+const burstCanvas = document.getElementById('burst-canvas');
+const burstCtx = burstCanvas.getContext('2d');
+
+btnYes.addEventListener('click', () => {
+  burstCanvas.width = window.innerWidth;
+  burstCanvas.height = window.innerHeight;
+  
+  const hearts = Array.from({length: 60}, () => ({
+    x: window.innerWidth / 2,
+    y: window.innerHeight / 2,
+    vx: (Math.random() - 0.5) * 14,
+    vy: (Math.random() - 0.5) * 14 - 2,
+    size: Math.random() * 24 + 12,
+    alpha: 1
+  }));
+
+  function animateBurst() {
+    burstCtx.clearRect(0, 0, burstCanvas.width, burstCanvas.height);
+    let active = false;
+    hearts.forEach(h => {
+      h.x += h.vx; h.y += h.vy; h.vy += 0.12; h.alpha -= 0.015;
+      if(h.alpha > 0) {
+        active = true;
+        burstCtx.save();
+        burstCtx.globalAlpha = h.alpha;
+        burstCtx.font = `${h.size}px serif`;
+        burstCtx.fillText('💖', h.x, h.y);
+        burstCtx.restore();
+      }
+    });
+    if(active) requestAnimationFrame(animateBurst);
+  }
+  animateBurst();
+
+  setTimeout(() => switchPage('page1', 'page2'), 500);
+});
+
+function switchPage(fromId, toId) {
+  document.getElementById(fromId).classList.remove('active');
+  setTimeout(() => {
+    document.getElementById(toId).classList.add('active');
+  }, 400);
+}
+
+/* 6. FOOD SELECTION & GUARANTEED EMAIL SUBMIT */
+const foodGrid = document.getElementById('food-grid');
+const btnSubmit = document.getElementById('btn-submit');
+const selectedFoods = new Set();
+
+foodGrid.addEventListener('click', (e) => {
+  const card = e.target.closest('.food-card');
+  if(!card) return;
+  const food = card.dataset.food;
+  if(selectedFoods.has(food)) {
+    selectedFoods.delete(food);
+    card.classList.remove('selected');
+  } else {
+    selectedFoods.add(food);
+    card.classList.add('selected');
+  }
+  btnSubmit.classList.toggle('active', selectedFoods.size > 0);
+});
+
+btnSubmit.addEventListener('click', () => {
+  if(selectedFoods.size === 0) return;
+
+  const foodsArr = Array.from(selectedFoods).join(', ');
+  
+  // Fill values in hidden form
+  document.getElementById('form-food-input').value = foodsArr;
+  document.getElementById('form-time-input').value = new Date().toLocaleString();
+
+  // Invisibly submit form
+  document.getElementById('email-form').submit();
+
+  // Transition to final page
+  switchPage('page2', 'page3');
+});
+</script>
+</body>
+</html>
